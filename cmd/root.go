@@ -23,13 +23,13 @@ import (
 	"strings"
 
 	"github.com/pingcap/errors"
-	"github.com/romberli/go-template-cli/config"
-	"github.com/romberli/go-template-cli/pkg/message"
 	"github.com/romberli/go-util/constant"
 	"github.com/romberli/log"
-	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/romberli/go-rsa/config"
+	"github.com/romberli/go-rsa/pkg/message"
 )
 
 const defaultConfigFileType = "yaml"
@@ -37,10 +37,6 @@ const defaultConfigFileType = "yaml"
 var (
 	// config
 	baseDir string
-	cfgFile string
-	// daemon
-	daemon    bool
-	daemonStr string
 	// log
 	logFileName           string
 	logLevel              string
@@ -49,19 +45,13 @@ var (
 	logMaxDays            int
 	logMaxBackups         int
 	logRotateOnStartupStr string
-	// server
-	serverAddr         string
-	serverPid          int
-	serverPidFile      string
-	serverReadTimeout  int
-	serverWriteTimeout int
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "go-template-cli",
-	Short: "go-template-cli",
-	Long:  `go-template-cli is a template of golang command line program`,
+	Use:   "go-rsa",
+	Short: "go-rsa",
+	Long:  `go-rsa is a encryption tool written in go.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// if no subcommand is set, it will print help information.
 		if len(args) == 0 {
@@ -99,23 +89,9 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	// config
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", constant.DefaultRandomString, "config file path")
-	// daemon
-	rootCmd.PersistentFlags().StringVar(&daemonStr, "daemon", constant.DefaultRandomString, fmt.Sprintf("whether run in background as a daemon(default: %s)", constant.FalseString))
 	// log
-	rootCmd.PersistentFlags().StringVar(&logFileName, "log-file", constant.DefaultRandomString, fmt.Sprintf("specify the log file name(default: %s)", filepath.Join(config.DefaultLogDir, log.DefaultLogFileName)))
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", constant.DefaultRandomString, fmt.Sprintf("specify the log level(default: %s)", log.DefaultLogLevel))
 	rootCmd.PersistentFlags().StringVar(&logFormat, "log-format", constant.DefaultRandomString, fmt.Sprintf("specify the log format(default: %s)", log.DefaultLogFormat))
-	rootCmd.PersistentFlags().IntVar(&logMaxSize, "log-max-size", constant.DefaultRandomInt, fmt.Sprintf("specify the log file max size(default: %d)", log.DefaultLogMaxSize))
-	rootCmd.PersistentFlags().IntVar(&logMaxDays, "log-max-days", constant.DefaultRandomInt, fmt.Sprintf("specify the log file max days(default: %d)", log.DefaultLogMaxDays))
-	rootCmd.PersistentFlags().IntVar(&logMaxBackups, "log-max-backups", constant.DefaultRandomInt, fmt.Sprintf("specify the log file max backups(default: %d)", log.DefaultLogMaxBackups))
-	rootCmd.PersistentFlags().StringVar(&logRotateOnStartupStr, "log-rotate-on-startup", constant.DefaultRandomString, fmt.Sprintf("specify if rotating the log file on startup(default: %s)", constant.FalseString))
-	// server
-	rootCmd.PersistentFlags().StringVar(&serverAddr, "server-addr", constant.DefaultRandomString, fmt.Sprintf("specify the server addr(default: %s)", config.DefaultServerAddr))
-	rootCmd.PersistentFlags().StringVar(&serverPidFile, "server-pid-file", constant.DefaultRandomString, fmt.Sprintf("specify the server pid file path(default: %s)", filepath.Join(config.DefaultBaseDir, fmt.Sprintf("%s.pid", config.DefaultCommandName))))
-	rootCmd.PersistentFlags().IntVar(&serverReadTimeout, "server-read-timeout", constant.DefaultRandomInt, fmt.Sprintf("specify the read timeout in seconds of http request(default: %d)", config.DefaultServerReadTimeout))
-	rootCmd.PersistentFlags().IntVar(&serverWriteTimeout, "server-write-timeout", constant.DefaultRandomInt, fmt.Sprintf("specify the write timeout in seconds of http request(default: %d)", config.DefaultServerWriteTimeout))
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -132,12 +108,6 @@ func initConfig() error {
 		return message.NewMessage(message.ErrInitDefaultConfig, err.Error())
 	}
 
-	// read config with config file
-	err = ReadConfigFile()
-	if err != nil {
-		return message.NewMessage(message.ErrInitDefaultConfig, err)
-	}
-
 	// override config with command line arguments
 	err = OverrideConfig()
 	if err != nil {
@@ -145,26 +115,15 @@ func initConfig() error {
 	}
 
 	// init log
-	fileName := viper.GetString(config.LogFileNameKey)
 	level := viper.GetString(config.LogLevelKey)
 	format := viper.GetString(config.LogFormatKey)
-	maxSize := viper.GetInt(config.LogMaxSizeKey)
-	maxDays := viper.GetInt(config.LogMaxDaysKey)
-	maxBackups := viper.GetInt(config.LogMaxBackupsKey)
 
-	fileNameAbs := fileName
-	isAbs := filepath.IsAbs(fileName)
-	if !isAbs {
-		fileNameAbs, err = filepath.Abs(fileName)
-		if err != nil {
-			return message.NewMessage(message.ErrAbsoluteLogFilePath, errors.Trace(err), fileName)
-		}
-	}
-	_, _, err = log.InitFileLogger(fileNameAbs, level, format, maxSize, maxDays, maxBackups)
+	logger, zapProperties, err := log.InitStdoutLogger(level, format)
 	if err != nil {
 		return message.NewMessage(message.ErrInitLogger, err)
 	}
 
+	log.ReplaceGlobals(logger, zapProperties)
 	log.SetDisableDoubleQuotes(true)
 	log.SetDisableEscape(true)
 
@@ -188,45 +147,8 @@ func initDefaultConfig() (err error) {
 	return nil
 }
 
-// ReadConfigFile read configuration from config file, it will override the init configuration
-func ReadConfigFile() (err error) {
-	if cfgFile != constant.EmptyString && cfgFile != constant.DefaultRandomString {
-		viper.SetConfigFile(cfgFile)
-		viper.SetConfigType(defaultConfigFileType)
-		err = viper.ReadInConfig()
-		if err != nil {
-			return errors.Trace(err)
-		}
-		err = config.ValidateConfig()
-		if err != nil {
-			return message.NewMessage(message.ErrValidateConfig, err)
-		}
-	}
-
-	return nil
-}
-
 // OverrideConfig read configuration from command line interface, it will override the config file configuration
 func OverrideConfig() (err error) {
-	// override config
-	if cfgFile != constant.EmptyString && cfgFile != constant.DefaultRandomString {
-		viper.Set(config.ConfKey, cfgFile)
-	}
-
-	// override daemon
-	if daemonStr != constant.DefaultRandomString {
-		daemon, err := cast.ToBoolE(daemonStr)
-		if err != nil {
-			return errors.Trace(err)
-		}
-
-		viper.Set(config.DaemonKey, daemon)
-	}
-
-	// override log
-	if logFileName != constant.DefaultRandomString {
-		viper.Set(config.LogFileNameKey, logFileName)
-	}
 	if logLevel != constant.DefaultRandomString {
 		logLevel = strings.ToLower(logLevel)
 		viper.Set(config.LogLevelKey, logLevel)
@@ -234,29 +156,6 @@ func OverrideConfig() (err error) {
 	if logFormat != constant.DefaultRandomString {
 		logLevel = strings.ToLower(logFormat)
 		viper.Set(config.LogFormatKey, logFormat)
-	}
-	if logMaxSize != constant.DefaultRandomInt {
-		viper.Set(config.LogMaxSizeKey, logMaxSize)
-	}
-	if logMaxDays != constant.DefaultRandomInt {
-		viper.Set(config.LogMaxDaysKey, logMaxDays)
-	}
-	if logMaxBackups != constant.DefaultRandomInt {
-		viper.Set(config.LogMaxBackupsKey, logMaxBackups)
-	}
-
-	// override server
-	if serverAddr != constant.DefaultRandomString {
-		viper.Set(config.ServerAddrKey, serverAddr)
-	}
-	if serverPidFile != constant.DefaultRandomString {
-		viper.Set(config.ServerPidFileKey, serverPidFile)
-	}
-	if serverReadTimeout != constant.DefaultRandomInt {
-		viper.Set(config.ServerReadTimeoutKey, serverReadTimeout)
-	}
-	if serverWriteTimeout != constant.DefaultRandomInt {
-		viper.Set(config.ServerWriteTimeoutKey, serverWriteTimeout)
 	}
 
 	// validate configuration

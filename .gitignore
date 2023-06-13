@@ -14,7 +14,7 @@ go-template
 */.idea/
 .DS_Store
 test/*.json
-config/go_template.yaml
+config/go_rsa.yaml
 
 # output
 *.out
@@ -28,5 +28,5 @@ release/*
 http-client.env.json
 .vscode/
 .test
-go_template.pid
-go_template.yaml
+go_rsa.pid
+go_rsa.yaml

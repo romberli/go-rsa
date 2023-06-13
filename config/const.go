@@ -22,45 +22,13 @@ import (
 
 // global constant
 const (
-	DefaultCommandName = "go-template-cli"
+	DefaultCommandName = "rsa"
 	DefaultBaseDir     = constant.CurrentDir
-	// daemon
-	DefaultDaemon  = false
-	DaemonArg      = "--daemon"
-	DaemonArgTrue  = "--daemon=true"
-	DaemonArgFalse = "--daemon=false"
 	// log
-	DefaultLogDir          = "./log"
-	MinLogMaxSize          = 1
-	MaxLogMaxSize          = constant.MaxInt
-	MinLogMaxDays          = 1
-	MaxLogMaxDays          = constant.MaxInt
-	MinLogMaxBackups       = 1
-	MaxLogMaxBackups       = constant.MaxInt
-	DefaultRotateOnStartup = false
-	// server
-	DefaultServerAddr         = "0.0.0.0:80"
-	DefaultServerReadTimeout  = 5
-	DefaultServerWriteTimeout = 10
-	MinServerReadTimeout      = 0
-	MaxServerReadTimeout      = 60
-	MinServerWriteTimeout     = 1
-	MaxServerWriteTimeout     = 60
 )
 
 // configuration constant
 const (
-	ConfKey               = "config"
-	DaemonKey             = "daemon"
-	LogFileNameKey        = "log.fileName"
-	LogLevelKey           = "log.level"
-	LogFormatKey          = "log.format"
-	LogMaxSizeKey         = "log.maxSize"
-	LogMaxDaysKey         = "log.maxDays"
-	LogMaxBackupsKey      = "log.maxBackups"
-	LogRotateOnStartupKey = "log.rotateOnStartup"
-	ServerAddrKey         = "server.addr"
-	ServerPidFileKey      = "server.pidFile"
-	ServerReadTimeoutKey  = "server.readTimeout"
-	ServerWriteTimeoutKey = "server.writeTimeout"
+	LogLevelKey  = "log.level"
+	LogFormatKey = "log.format"
 )
