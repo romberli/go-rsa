@@ -38,13 +38,10 @@ var (
 	// config
 	baseDir string
 	// log
-	logFileName           string
-	logLevel              string
-	logFormat             string
-	logMaxSize            int
-	logMaxDays            int
-	logMaxBackups         int
-	logRotateOnStartupStr string
+	logLevel  string
+	logFormat string
+	// rsa
+	keyType string
 )
 
 // rootCmd represents the base command when called without any subcommands
