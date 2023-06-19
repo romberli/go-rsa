@@ -1,4 +1,5 @@
 # binary
+bin/
 *.exe
 *.exe~
 *.dll

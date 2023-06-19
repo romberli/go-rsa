@@ -7,6 +7,7 @@ import (
 	"github.com/romberli/go-util/crypto"
 
 	pkgMessage "github.com/romberli/go-rsa/pkg/message"
+	"github.com/romberli/go-rsa/pkg/util"
 
 	rsaMessage "github.com/romberli/go-rsa/pkg/message/rsa"
 )
@@ -52,7 +53,7 @@ func Encrypt(keyType, message string) (string, error) {
 		return constant.EmptyString, err
 	}
 
-	return fmt.Sprintf(defaultEncryptTemplate, publicKeyType, privateKey, publicKey, message, cipher), nil
+	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, keyType, privateKey, publicKey, message, cipher))
 }
 
 // EncryptWithPublicKeyString encrypts the message with public key string
@@ -62,7 +63,7 @@ func EncryptWithPublicKeyString(publicKey, message string) (string, error) {
 		return constant.EmptyString, err
 	}
 
-	return fmt.Sprintf(defaultEncryptTemplate, publicKeyType, constant.EmptyString, publicKey, message, cipher), nil
+	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, publicKeyType, constant.EmptyString, publicKey, message, cipher))
 }
 
 // DecryptWithPublicKeyString decrypts the cipher with public key string
@@ -72,7 +73,7 @@ func DecryptWithPublicKeyString(publicKey, cipher string) (string, error) {
 		return constant.EmptyString, err
 	}
 
-	return fmt.Sprintf(defaultDecryptTemplate, publicKeyType, constant.EmptyString, publicKey, message, cipher), nil
+	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, publicKeyType, constant.EmptyString, publicKey, message, cipher))
 }
 
 // EncryptWithPrivateKeyString encrypts the message with private key string
@@ -92,7 +93,7 @@ func EncryptWithPrivateKeyString(privateKey, message string) (string, error) {
 		return constant.EmptyString, err
 	}
 
-	return fmt.Sprintf(defaultEncryptTemplate, privateKeyType, privateKey, publicKey, message, cipher), nil
+	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, privateKeyType, privateKey, publicKey, message, cipher))
 }
 
 // DecryptWithPrivateKeyString decrypts the cipher with private key string
@@ -112,5 +113,5 @@ func DecryptWithPrivateKeyString(privateKey, cipher string) (string, error) {
 		return constant.EmptyString, err
 	}
 
-	return fmt.Sprintf(defaultDecryptTemplate, privateKeyType, privateKey, publicKey, message, cipher), nil
+	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, privateKeyType, privateKey, publicKey, message, cipher))
 }
