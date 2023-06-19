@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/pingcap/errors"
 	"github.com/romberli/go-util/constant"
@@ -32,16 +31,25 @@ import (
 	"github.com/romberli/go-rsa/pkg/message"
 )
 
-const defaultConfigFileType = "yaml"
+const (
+	defaultConfigFileType = "yaml"
+
+	publicKeyType  = "public"
+	privateKeyType = "private"
+)
 
 var (
 	// config
 	baseDir string
+	cfgFile string
+
 	// log
 	logLevel  string
 	logFormat string
 	// rsa
-	keyType string
+	keyType   string
+	keyString string
+	input     string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -86,9 +94,14 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
+	// config
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", constant.DefaultRandomString, "config file path")
 	// log
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", constant.DefaultRandomString, fmt.Sprintf("specify the log level(default: %s)", log.DefaultLogLevel))
 	rootCmd.PersistentFlags().StringVar(&logFormat, "log-format", constant.DefaultRandomString, fmt.Sprintf("specify the log format(default: %s)", log.DefaultLogFormat))
+	rootCmd.PersistentFlags().StringVar(&keyType, "key-type", constant.DefaultRandomString, fmt.Sprintf("specify the key type(default: %s)", config.DefaultKeyType))
+	rootCmd.PersistentFlags().StringVar(&keyString, "key-string", constant.DefaultRandomString, "specify the key string")
+	rootCmd.PersistentFlags().StringVar(&input, "input", constant.DefaultRandomString, "specify the input string")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -105,8 +118,14 @@ func initConfig() error {
 		return message.NewMessage(message.ErrInitDefaultConfig, err.Error())
 	}
 
+	// read config with config file
+	err = ReadConfigFile()
+	if err != nil {
+		return message.NewMessage(message.ErrInitDefaultConfig, err)
+	}
+
 	// override config with command line arguments
-	err = OverrideConfig()
+	err = OverrideConfigByCLI()
 	if err != nil {
 		return message.NewMessage(message.ErrOverrideCommandLineArgs, err)
 	}
@@ -144,24 +163,22 @@ func initDefaultConfig() (err error) {
 	return nil
 }
 
-// OverrideConfig read configuration from command line interface, it will override the config file configuration
-func OverrideConfig() (err error) {
-	if logLevel != constant.DefaultRandomString {
-		logLevel = strings.ToLower(logLevel)
-		viper.Set(config.LogLevelKey, logLevel)
-	}
-	if logFormat != constant.DefaultRandomString {
-		logLevel = strings.ToLower(logFormat)
-		viper.Set(config.LogFormatKey, logFormat)
-	}
-
-	// validate configuration
-	err = config.ValidateConfig()
-	if err != nil {
-		return message.NewMessage(message.ErrValidateConfig, err)
+// ReadConfigFile read configuration from config file, it will override the init configuration
+func ReadConfigFile() (err error) {
+	if cfgFile != constant.EmptyString && cfgFile != constant.DefaultRandomString {
+		viper.SetConfigFile(cfgFile)
+		viper.SetConfigType(defaultConfigFileType)
+		err = viper.ReadInConfig()
+		if err != nil {
+			return errors.Trace(err)
+		}
+		err = config.ValidateConfig()
+		if err != nil {
+			return message.NewMessage(message.ErrValidateConfig, err)
+		}
 	}
 
-	return err
+	return nil
 }
 
 // UsageTemplateWithoutDefault returns a usage template which does not contain default part

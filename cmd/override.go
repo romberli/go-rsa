@@ -17,6 +17,10 @@ func OverrideConfigByCLI() error {
 	if err != nil {
 		return err
 	}
+
+	// override rsa
+	overrideRSAByCLI()
+
 	// validate configuration
 	err = config.ValidateConfig()
 	if err != nil {
@@ -38,4 +42,21 @@ func overrideLogByCLI() error {
 	}
 
 	return nil
+}
+
+// overrideRSAByCLI overrides the rsa section by command line interface
+func overrideRSAByCLI() {
+	// key type
+	if keyType != constant.DefaultRandomString {
+		keyType = strings.ToLower(keyType)
+		viper.Set(config.KeyTypeKey, keyType)
+	}
+	// key string
+	if keyString != constant.DefaultRandomString {
+		viper.Set(config.KeyStringKey, keyString)
+	}
+	// input
+	if input != constant.DefaultRandomString {
+		viper.Set(config.InputKey, input)
+	}
 }

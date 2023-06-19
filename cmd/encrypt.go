@@ -21,12 +21,20 @@ import (
 	"os"
 
 	"github.com/romberli/go-util/constant"
+	"github.com/romberli/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
+	"github.com/romberli/go-rsa/config"
+	"github.com/romberli/go-rsa/module/rsa"
 	"github.com/romberli/go-rsa/pkg/message"
+
+	rsaMessage "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
-const encryptCommand = "encrypt"
+const (
+	encryptCommand = "encrypt"
+)
 
 // encryptCmd represents the encrypt command
 var encryptCmd = &cobra.Command{
@@ -39,6 +47,31 @@ var encryptCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println(fmt.Sprintf(constant.LogWithStackString, message.NewMessage(message.ErrInitConfig, err)))
 			os.Exit(constant.DefaultAbnormalExitCode)
+		}
+
+		keyType = viper.GetString(config.KeyTypeKey)
+		keyString = viper.GetString(config.KeyStringKey)
+		input = viper.GetString(config.InputKey)
+
+		switch keyType {
+		case publicKeyType:
+			output, err := rsa.EncryptWithPublicKeyString(keyType, keyString)
+			if err != nil {
+				log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+				os.Exit(constant.DefaultAbnormalExitCode)
+			}
+
+			fmt.Println(output)
+		case privateKeyType:
+			output, err := rsa.EncryptWithPrivateKeyString(keyType, keyString)
+			if err != nil {
+				fmt.Println(fmt.Sprintf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input)))
+				os.Exit(constant.DefaultAbnormalExitCode)
+			}
+
+			fmt.Println(output)
+		default:
+			fmt.Println(fmt.Sprintf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSANotValidKeyType, keyType)))
 		}
 
 		os.Exit(constant.DefaultNormalExitCode)
