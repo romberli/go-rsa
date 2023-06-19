@@ -46,7 +46,7 @@ func SetDefaultConfig(baseDir string) {
 	viper.SetDefault(LogFormatKey, log.DefaultLogFormat)
 	// rsa
 	viper.SetDefault(KeyTypeKey, DefaultKeyType)
-	viper.SetDefault(KeyStringKey, DefaultPublicKeyString)
+	viper.SetDefault(KeyStringKey, constant.EmptyString)
 	viper.SetDefault(InputKey, constant.EmptyString)
 }
 
@@ -60,7 +60,7 @@ func ValidateConfig() (err error) {
 		merr = multierror.Append(merr, err)
 	}
 	// validate rsa section
-	err = ValidateRsa()
+	err = ValidateRSA()
 	if err != nil {
 		merr = multierror.Append(merr, err)
 	}
@@ -103,8 +103,8 @@ func ValidateLog() error {
 	return merr.ErrorOrNil()
 }
 
-// ValidateRsa validates if rsa section is valid.
-func ValidateRsa() error {
+// ValidateRSA validates if rsa section is valid.
+func ValidateRSA() error {
 	var valid bool
 
 	merr := &multierror.Error{}
@@ -123,12 +123,9 @@ func ValidateRsa() error {
 	}
 
 	// validate key.string
-	keyString, err := cast.ToStringE(viper.Get(KeyStringKey))
+	_, err = cast.ToStringE(viper.Get(KeyStringKey))
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
-	}
-	if keyString == constant.EmptyString {
-		merr = multierror.Append(merr, message.NewMessage(rsaMessage.ErrRSAEmptyKeyString))
 	}
 
 	// validate input

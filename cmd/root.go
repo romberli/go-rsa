@@ -56,7 +56,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "go-rsa",
 	Short: "go-rsa",
-	Long:  `go-rsa is a encryption tool written in go.`,
+	Long:  `go-rsa is a encryption and decryption tool written in go.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// if no subcommand is set, it will print help information.
 		if len(args) == 0 {

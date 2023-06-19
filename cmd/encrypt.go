@@ -53,9 +53,22 @@ var encryptCmd = &cobra.Command{
 		keyString = viper.GetString(config.KeyStringKey)
 		input = viper.GetString(config.InputKey)
 
+		var output string
+
 		switch keyType {
 		case publicKeyType:
-			output, err := rsa.EncryptWithPublicKeyString(keyType, keyString)
+			if keyString == constant.EmptyString {
+				output, err = rsa.Encrypt(keyType, input)
+				if err != nil {
+					log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+					os.Exit(constant.DefaultAbnormalExitCode)
+				}
+
+				fmt.Println(output)
+				os.Exit(constant.DefaultNormalExitCode)
+			}
+
+			output, err = rsa.EncryptWithPublicKeyString(keyString, input)
 			if err != nil {
 				log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
 				os.Exit(constant.DefaultAbnormalExitCode)
@@ -63,15 +76,27 @@ var encryptCmd = &cobra.Command{
 
 			fmt.Println(output)
 		case privateKeyType:
-			output, err := rsa.EncryptWithPrivateKeyString(keyType, keyString)
+			if keyString == constant.EmptyString {
+				output, err = rsa.Encrypt(keyType, input)
+				if err != nil {
+					log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+					os.Exit(constant.DefaultAbnormalExitCode)
+				}
+
+				fmt.Println(output)
+				os.Exit(constant.DefaultNormalExitCode)
+			}
+
+			output, err := rsa.EncryptWithPrivateKeyString(keyString, input)
 			if err != nil {
-				fmt.Println(fmt.Sprintf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input)))
+				log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
 				os.Exit(constant.DefaultAbnormalExitCode)
 			}
 
 			fmt.Println(output)
 		default:
-			fmt.Println(fmt.Sprintf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSANotValidKeyType, keyType)))
+			log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSANotValidKeyType, keyType))
+			os.Exit(constant.DefaultAbnormalExitCode)
 		}
 
 		os.Exit(constant.DefaultNormalExitCode)

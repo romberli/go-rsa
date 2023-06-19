@@ -20,3 +20,18 @@ log:
   # available: [text, json]
   # default: text
   format: text
+# description: rsa key type
+# command-line-argument: --key-type
+# type: string
+# default: public
+keyType: public
+# description: rsa key string
+# command-line-argument: --key-string
+# type: string
+# default: None
+keyString: ""
+# description: input string
+# command-line-argument: --input
+# type: string
+# default: None
+input: ""
