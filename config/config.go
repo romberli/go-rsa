@@ -30,7 +30,7 @@ import (
 
 	"github.com/romberli/go-rsa/pkg/message"
 
-	rsaMessage "github.com/romberli/go-rsa/pkg/message/rsa"
+	msgRSA "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
 var (
@@ -45,8 +45,10 @@ func SetDefaultConfig(baseDir string) {
 	viper.SetDefault(LogLevelKey, log.DefaultLogLevel)
 	viper.SetDefault(LogFormatKey, log.DefaultLogFormat)
 	// rsa
-	viper.SetDefault(KeyTypeKey, DefaultKeyType)
-	viper.SetDefault(KeyStringKey, constant.EmptyString)
+	viper.SetDefault(RSAEncryptKey, DefaultRSAPrivate)
+	viper.SetDefault(RSADecryptKey, DefaultRSAPublic)
+	viper.SetDefault(RSAPrivateKey, constant.EmptyString)
+	viper.SetDefault(RSAPublicKey, constant.EmptyString)
 	viper.SetDefault(InputKey, constant.EmptyString)
 }
 
@@ -86,7 +88,6 @@ func ValidateLog() error {
 	if !valid {
 		merr = multierror.Append(merr, message.NewMessage(message.ErrNotValidLogLevel, logLevel))
 	}
-
 	// validate log.format
 	logFormat, err := cast.ToStringE(viper.Get(LogFormatKey))
 	if err != nil {
@@ -109,25 +110,40 @@ func ValidateRSA() error {
 
 	merr := &multierror.Error{}
 
-	// validate key.type
-	keyType, err := cast.ToStringE(viper.Get(KeyTypeKey))
+	// validate rsa.encrypt
+	rsaEncrypt, err := cast.ToStringE(viper.Get(RSAEncryptKey))
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid, err = common.ElementInSlice(ValidKeyTypes, keyType)
+	valid, err = common.ElementInSlice(ValidKeyTypes, rsaEncrypt)
 	if err != nil {
 		merr = multierror.Append(merr, err)
 	}
 	if !valid {
-		merr = multierror.Append(merr, message.NewMessage(rsaMessage.ErrRSANotValidKeyType, keyType))
+		merr = multierror.Append(merr, message.NewMessage(msgRSA.ErrRSANotValidKeyType, rsaEncrypt))
 	}
-
-	// validate key.string
-	_, err = cast.ToStringE(viper.Get(KeyStringKey))
+	// validate rsa.decrypt
+	rsaDecrypt, err := cast.ToStringE(viper.Get(RSADecryptKey))
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-
+	valid, err = common.ElementInSlice(ValidKeyTypes, rsaDecrypt)
+	if err != nil {
+		merr = multierror.Append(merr, err)
+	}
+	if !valid {
+		merr = multierror.Append(merr, message.NewMessage(msgRSA.ErrRSANotValidKeyType, rsaDecrypt))
+	}
+	// validate rsa.private
+	_, err = cast.ToStringE(viper.Get(RSAPrivateKey))
+	if err != nil {
+		merr = multierror.Append(merr, errors.Trace(err))
+	}
+	// validate rsa.public
+	_, err = cast.ToStringE(viper.Get(RSAPublicKey))
+	if err != nil {
+		merr = multierror.Append(merr, errors.Trace(err))
+	}
 	// validate input
 	_, err = cast.ToStringE(viper.Get(InputKey))
 	if err != nil {

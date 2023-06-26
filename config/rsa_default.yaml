@@ -20,16 +20,30 @@ log:
   # available: [text, json]
   # default: text
   format: text
-# description: rsa key type
-# command-line-argument: --key-type
-# type: string
-# default: public
-keyType: public
-# description: rsa key string
-# command-line-argument: --key-string
-# type: string
-# default: None
-keyString: ""
+# rsa configuration
+rsa:
+  # description: rsa encrypt key type
+  # command-line-argument: --rsa-encrypt
+  # type: string
+  # available: [public, private]
+  # default: private
+  encrypt: private
+  # description: rsa decrypt key type
+  # command-line-argument: --rsa-decrypt
+  # type: string
+  # available: [public, private]
+  # default: public
+  decrypt: public
+  # description: rsa private key
+  # command-line-argument: --rsa-private
+  # type: string
+  # default: None
+  private: ""
+  # description: rsa public key
+  # command-line-argument: --rsa-public
+  # type: string
+  # default: None
+  public: ""
 # description: input string
 # command-line-argument: --input
 # type: string

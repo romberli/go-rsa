@@ -28,7 +28,7 @@ import (
 	"github.com/romberli/go-rsa/config"
 	"github.com/romberli/go-rsa/module/rsa"
 	"github.com/romberli/go-rsa/pkg/message"
-	rsaMessage "github.com/romberli/go-rsa/pkg/message/rsa"
+	msgRSA "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
 const decryptCommand = "decrypt"
@@ -46,31 +46,32 @@ var decryptCmd = &cobra.Command{
 			os.Exit(constant.DefaultAbnormalExitCode)
 		}
 
-		keyType = viper.GetString(config.KeyTypeKey)
-		keyString = viper.GetString(config.KeyStringKey)
-		input = viper.GetString(config.InputKey)
-
 		var output string
 
-		switch keyType {
-		case publicKeyType:
-			output, err = rsa.DecryptWithPublicKeyString(keyString, input)
+		rsaDecrypt = viper.GetString(config.RSADecryptKey)
+		privateKey := viper.GetString(config.RSAPrivateKey)
+		publicKey := viper.GetString(config.RSAPublicKey)
+		input = viper.GetString(config.InputKey)
+
+		switch rsaDecrypt {
+		case config.DefaultRSAPrivate:
+			output, err = rsa.DecryptWithPrivateKeyString(privateKey, input)
 			if err != nil {
-				log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+				log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSADecrypt, err, rsaDecrypt, privateKey, input))
 				os.Exit(constant.DefaultAbnormalExitCode)
 			}
 
 			fmt.Println(output)
-		case privateKeyType:
-			output, err := rsa.DecryptWithPrivateKeyString(keyString, input)
+		case config.DefaultRSAPublic:
+			output, err := rsa.DecryptWithPublicKeyString(publicKey, input)
 			if err != nil {
-				log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+				log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSADecrypt, err, rsaDecrypt, publicKey, input))
 				os.Exit(constant.DefaultAbnormalExitCode)
 			}
 
 			fmt.Println(output)
 		default:
-			log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSANotValidKeyType, keyType))
+			log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSANotValidKeyType, rsaDecrypt))
 			os.Exit(constant.DefaultAbnormalExitCode)
 		}
 

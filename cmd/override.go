@@ -32,10 +32,12 @@ func OverrideConfigByCLI() error {
 
 // overrideLogByCLI overrides the log section by command line interface
 func overrideLogByCLI() error {
+	// log.level
 	if logLevel != constant.DefaultRandomString {
 		logLevel = strings.ToLower(logLevel)
 		viper.Set(config.LogLevelKey, logLevel)
 	}
+	// log.format
 	if logFormat != constant.DefaultRandomString {
 		logLevel = strings.ToLower(logFormat)
 		viper.Set(config.LogFormatKey, logFormat)
@@ -46,14 +48,21 @@ func overrideLogByCLI() error {
 
 // overrideRSAByCLI overrides the rsa section by command line interface
 func overrideRSAByCLI() {
-	// key type
-	if keyType != constant.DefaultRandomString {
-		keyType = strings.ToLower(keyType)
-		viper.Set(config.KeyTypeKey, keyType)
+	// rsa.encrypt
+	if rsaEncrypt != constant.DefaultRandomString {
+		viper.Set(config.RSAEncryptKey, rsaEncrypt)
 	}
-	// key string
-	if keyString != constant.DefaultRandomString {
-		viper.Set(config.KeyStringKey, keyString)
+	// rsa.decrypt
+	if rsaDecrypt != constant.DefaultRandomString {
+		viper.Set(config.RSADecryptKey, rsaDecrypt)
+	}
+	// rsa.private
+	if rsaPrivate != constant.DefaultRandomString {
+		viper.Set(config.RSAPrivateKey, rsaPrivate)
+	}
+	// rsa.public
+	if rsaPublic != constant.DefaultRandomString {
+		viper.Set(config.RSAPublicKey, rsaPublic)
 	}
 	// input
 	if input != constant.DefaultRandomString {

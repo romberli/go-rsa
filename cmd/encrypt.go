@@ -29,7 +29,7 @@ import (
 	"github.com/romberli/go-rsa/module/rsa"
 	"github.com/romberli/go-rsa/pkg/message"
 
-	rsaMessage "github.com/romberli/go-rsa/pkg/message/rsa"
+	msgRSA "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
 const (
@@ -49,18 +49,19 @@ var encryptCmd = &cobra.Command{
 			os.Exit(constant.DefaultAbnormalExitCode)
 		}
 
-		keyType = viper.GetString(config.KeyTypeKey)
-		keyString = viper.GetString(config.KeyStringKey)
-		input = viper.GetString(config.InputKey)
-
 		var output string
 
-		switch keyType {
-		case publicKeyType:
-			if keyString == constant.EmptyString {
-				output, err = rsa.Encrypt(keyType, input)
+		rsaEncrypt = viper.GetString(config.RSAEncryptKey)
+		privateKey := viper.GetString(config.RSAPrivateKey)
+		publicKey := viper.GetString(config.RSAPublicKey)
+		input = viper.GetString(config.InputKey)
+
+		switch rsaEncrypt {
+		case config.DefaultRSAPrivate:
+			if privateKey == constant.EmptyString {
+				output, err = rsa.Encrypt(rsaEncrypt, input)
 				if err != nil {
-					log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+					log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSAEncrypt, err, rsaEncrypt, privateKey, input))
 					os.Exit(constant.DefaultAbnormalExitCode)
 				}
 
@@ -68,18 +69,18 @@ var encryptCmd = &cobra.Command{
 				os.Exit(constant.DefaultNormalExitCode)
 			}
 
-			output, err = rsa.EncryptWithPublicKeyString(keyString, input)
+			output, err = rsa.EncryptWithPrivateKeyString(privateKey, input)
 			if err != nil {
-				log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+				log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSAEncrypt, err, rsaEncrypt, rsaDecrypt, input))
 				os.Exit(constant.DefaultAbnormalExitCode)
 			}
 
 			fmt.Println(output)
-		case privateKeyType:
-			if keyString == constant.EmptyString {
-				output, err = rsa.Encrypt(keyType, input)
+		case config.DefaultRSAPublic:
+			if publicKey == constant.EmptyString {
+				output, err = rsa.Encrypt(rsaEncrypt, input)
 				if err != nil {
-					log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+					log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSAEncrypt, err, rsaEncrypt, publicKey, input))
 					os.Exit(constant.DefaultAbnormalExitCode)
 				}
 
@@ -87,15 +88,15 @@ var encryptCmd = &cobra.Command{
 				os.Exit(constant.DefaultNormalExitCode)
 			}
 
-			output, err := rsa.EncryptWithPrivateKeyString(keyString, input)
+			output, err := rsa.EncryptWithPublicKeyString(publicKey, input)
 			if err != nil {
-				log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSAEncrypt, err, keyType, keyString, input))
+				log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSAEncrypt, err, rsaEncrypt, publicKey, input))
 				os.Exit(constant.DefaultAbnormalExitCode)
 			}
 
 			fmt.Println(output)
 		default:
-			log.Errorf(constant.LogWithStackString, message.NewMessage(rsaMessage.ErrRSANotValidKeyType, keyType))
+			log.Errorf(constant.LogWithStackString, message.NewMessage(msgRSA.ErrRSANotValidKeyType, rsaEncrypt))
 			os.Exit(constant.DefaultAbnormalExitCode)
 		}
 

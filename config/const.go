@@ -25,7 +25,8 @@ const (
 	DefaultCommandName = "rsa"
 	DefaultBaseDir     = constant.CurrentDir
 
-	DefaultKeyType          = "public"
+	DefaultRSAPrivate       = "private"
+	DefaultRSAPublic        = "public"
 	DefaultPublicKeyString  = "MEgCQQDJVV0o3zSnFIJnqs2xzjfAEmA2RNM8hLGvJfI9K9jT4YIDAuFSRGsyRDqqwqtJLhEVvsytAMKX22AR7Yeq95TdAgMBAAE="
 	DefaultPrivateKeyString = "MIIBOwIBAAJBAMlVXSjfNKcUgmeqzbHON8ASYDZE0zyEsa8l8j0r2NPhggMC4VJEazJEOqrCq0kuERW+zK0AwpfbYBHth6r3lN0CAwEAAQJBALtM3/sLE6ewK9UXkH6usyzLq5gxFTcC125y5dXEudX6GDkQ7+c9WCMutDBF40D9xCvYfSVlNInBAGZVcC33WcECIQDRcFBwXIdXzj0lecjhkepkJHdC7+3zcDKx3lvj6rKxzQIhAPYXwhHL27AhvJ931dXL5tJGsajx5/xANAGZAn14+59RAiBbjfaL99buamjOfhtziB7nog1EhLAHcC+pE6Ql0Q5GrQIgUKSQcAyBvUIQ8aDvbdQXm6iW52n+P2c6o5tkeYF/00ECIQCyeOPbrbD8QMDkZzrvgKBMIG6ZW/hBTNXoTet0y3GB+Q=="
 )
@@ -35,7 +36,9 @@ const (
 	LogLevelKey  = "log.level"
 	LogFormatKey = "log.format"
 
-	KeyTypeKey   = "keyType"
-	KeyStringKey = "keyString"
-	InputKey     = "input"
+	RSAEncryptKey = "rsa.encrypt"
+	RSADecryptKey = "rsa.decrypt"
+	RSAPrivateKey = "rsa.private"
+	RSAPublicKey  = "rsa.public"
+	InputKey      = "input"
 )

@@ -6,16 +6,14 @@ import (
 	"github.com/romberli/go-util/constant"
 	"github.com/romberli/go-util/crypto"
 
+	"github.com/romberli/go-rsa/config"
 	pkgMessage "github.com/romberli/go-rsa/pkg/message"
 	"github.com/romberli/go-rsa/pkg/util"
 
-	rsaMessage "github.com/romberli/go-rsa/pkg/message/rsa"
+	msgRSA "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
 const (
-	publicKeyType  = "public"
-	privateKeyType = "private"
-
 	defaultEncryptTemplate = `{"encrypt_key_type": "%s", "private_key": "%s", "public_key": "%s", "message": "%s", "cipher": "%s"}`
 	defaultDecryptTemplate = `{"decrypt_key_type": "%s", "private_key": "%s", "public_key": "%s", "message": "%s", "cipher": "%s"}`
 )
@@ -30,18 +28,18 @@ func Encrypt(keyType, message string) (string, error) {
 	var cipher string
 
 	switch keyType {
-	case publicKeyType:
+	case config.DefaultRSAPrivate:
 		cipher, err = r.Encrypt(message)
 		if err != nil {
 			return constant.EmptyString, err
 		}
-	case privateKeyType:
+	case config.DefaultRSAPublic:
 		cipher, err = r.EncryptWithPrivateKey(message)
 		if err != nil {
 			return constant.EmptyString, err
 		}
 	default:
-		return constant.EmptyString, pkgMessage.NewMessage(rsaMessage.ErrRSANotValidKeyType, keyType)
+		return constant.EmptyString, pkgMessage.NewMessage(msgRSA.ErrRSANotValidKeyType, keyType)
 	}
 
 	privateKey, err := r.GetPrivateKey()
@@ -54,26 +52,6 @@ func Encrypt(keyType, message string) (string, error) {
 	}
 
 	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, keyType, privateKey, publicKey, message, cipher))
-}
-
-// EncryptWithPublicKeyString encrypts the message with public key string
-func EncryptWithPublicKeyString(publicKey, message string) (string, error) {
-	cipher, err := crypto.EncryptWithPublicKeyString(publicKey, message)
-	if err != nil {
-		return constant.EmptyString, err
-	}
-
-	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, publicKeyType, constant.EmptyString, publicKey, message, cipher))
-}
-
-// DecryptWithPublicKeyString decrypts the cipher with public key string
-func DecryptWithPublicKeyString(publicKey, cipher string) (string, error) {
-	message, err := crypto.DecryptWithPublicKeyString(publicKey, cipher)
-	if err != nil {
-		return constant.EmptyString, err
-	}
-
-	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, publicKeyType, constant.EmptyString, publicKey, message, cipher))
 }
 
 // EncryptWithPrivateKeyString encrypts the message with private key string
@@ -93,7 +71,17 @@ func EncryptWithPrivateKeyString(privateKey, message string) (string, error) {
 		return constant.EmptyString, err
 	}
 
-	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, privateKeyType, privateKey, publicKey, message, cipher))
+	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, config.DefaultRSAPrivate, privateKey, publicKey, message, cipher))
+}
+
+// EncryptWithPublicKeyString encrypts the message with public key string
+func EncryptWithPublicKeyString(publicKey, message string) (string, error) {
+	cipher, err := crypto.EncryptWithPublicKeyString(publicKey, message)
+	if err != nil {
+		return constant.EmptyString, err
+	}
+
+	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, config.DefaultRSAPublic, constant.EmptyString, publicKey, message, cipher))
 }
 
 // DecryptWithPrivateKeyString decrypts the cipher with private key string
@@ -113,5 +101,15 @@ func DecryptWithPrivateKeyString(privateKey, cipher string) (string, error) {
 		return constant.EmptyString, err
 	}
 
-	return util.PrettyJSONString(fmt.Sprintf(defaultEncryptTemplate, privateKeyType, privateKey, publicKey, message, cipher))
+	return util.PrettyJSONString(fmt.Sprintf(defaultDecryptTemplate, config.DefaultRSAPrivate, privateKey, publicKey, message, cipher))
+}
+
+// DecryptWithPublicKeyString decrypts the cipher with public key string
+func DecryptWithPublicKeyString(publicKey, cipher string) (string, error) {
+	message, err := crypto.DecryptWithPublicKeyString(publicKey, cipher)
+	if err != nil {
+		return constant.EmptyString, err
+	}
+
+	return util.PrettyJSONString(fmt.Sprintf(defaultDecryptTemplate, config.DefaultRSAPublic, constant.EmptyString, publicKey, message, cipher))
 }

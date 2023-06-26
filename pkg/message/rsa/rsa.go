@@ -19,8 +19,8 @@ const (
 
 	// error
 	ErrRSANotValidKeyType = 401001
-	ErrRSAEmptyKeyString  = 401002
-	ErrRSAEncrypt         = 401003
+	ErrRSAEncrypt         = 401002
+	ErrRSADecrypt         = 401003
 )
 
 func initRSADebugMessage() {
@@ -34,8 +34,8 @@ func initRSAInfoMessage() {
 func initRSAErrorMessage() {
 	message.Messages[ErrRSANotValidKeyType] = config.NewErrMessage(message.DefaultMessageHeader, ErrRSANotValidKeyType,
 		"rsa: key type must be either public or private, %s is not valid")
-	message.Messages[ErrRSAEmptyKeyString] = config.NewErrMessage(message.DefaultMessageHeader, ErrRSAEmptyKeyString,
-		"rsa: key string is empty")
 	message.Messages[ErrRSAEncrypt] = config.NewErrMessage(message.DefaultMessageHeader, ErrRSAEncrypt,
-		"rsa: encrypt failed. keyType: %s, keyString: %s, input: %s")
+		"rsa: encrypt failed. encrypt: %s, key: %s, input: %s")
+	message.Messages[ErrRSADecrypt] = config.NewErrMessage(message.DefaultMessageHeader, ErrRSADecrypt,
+		"rsa: decrypt failed. decrypt: %s, key: %s, input: %s")
 }

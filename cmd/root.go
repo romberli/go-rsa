@@ -33,9 +33,6 @@ import (
 
 const (
 	defaultConfigFileType = "yaml"
-
-	publicKeyType  = "public"
-	privateKeyType = "private"
 )
 
 var (
@@ -47,9 +44,11 @@ var (
 	logLevel  string
 	logFormat string
 	// rsa
-	keyType   string
-	keyString string
-	input     string
+	rsaEncrypt string
+	rsaDecrypt string
+	rsaPrivate string
+	rsaPublic  string
+	input      string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -99,8 +98,10 @@ func init() {
 	// log
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", constant.DefaultRandomString, fmt.Sprintf("specify the log level(default: %s)", log.DefaultLogLevel))
 	rootCmd.PersistentFlags().StringVar(&logFormat, "log-format", constant.DefaultRandomString, fmt.Sprintf("specify the log format(default: %s)", log.DefaultLogFormat))
-	rootCmd.PersistentFlags().StringVar(&keyType, "key-type", constant.DefaultRandomString, fmt.Sprintf("specify the key type(default: %s)", config.DefaultKeyType))
-	rootCmd.PersistentFlags().StringVar(&keyString, "key-string", constant.DefaultRandomString, "specify the key string")
+	rootCmd.PersistentFlags().StringVar(&rsaEncrypt, "rsa-encrypt", constant.DefaultRandomString, fmt.Sprintf("specify rsa ecnrypt key type(default: %s)", config.DefaultRSAPrivate))
+	rootCmd.PersistentFlags().StringVar(&rsaDecrypt, "rsa-decrypt", constant.DefaultRandomString, fmt.Sprintf("specify rsa denrypt key type(default: %s)", config.DefaultRSAPublic))
+	rootCmd.PersistentFlags().StringVar(&rsaPrivate, "rsa-private", constant.DefaultRandomString, fmt.Sprintf("specify rsa private key string(default: %s)", constant.EmptyString))
+	rootCmd.PersistentFlags().StringVar(&rsaPublic, "rsa-public", constant.DefaultRandomString, fmt.Sprintf("specify rsa public key string(default: %s)", constant.EmptyString))
 	rootCmd.PersistentFlags().StringVar(&input, "input", constant.DefaultRandomString, "specify the input string")
 
 	// Cobra also supports local flags, which will only run
