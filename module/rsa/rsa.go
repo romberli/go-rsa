@@ -7,9 +7,9 @@ import (
 	"github.com/romberli/go-util/crypto"
 
 	"github.com/romberli/go-rsa/config"
-	pkgMessage "github.com/romberli/go-rsa/pkg/message"
 	"github.com/romberli/go-rsa/pkg/util"
 
+	pkgMessage "github.com/romberli/go-rsa/pkg/message"
 	msgRSA "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
