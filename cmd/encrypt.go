@@ -32,10 +32,6 @@ import (
 	msgRSA "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
-const (
-	encryptCommand = "encrypt"
-)
-
 // encryptCmd represents the encrypt command
 var encryptCmd = &cobra.Command{
 	Use:   "encrypt",

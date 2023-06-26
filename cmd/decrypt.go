@@ -28,6 +28,7 @@ import (
 	"github.com/romberli/go-rsa/config"
 	"github.com/romberli/go-rsa/module/rsa"
 	"github.com/romberli/go-rsa/pkg/message"
+
 	msgRSA "github.com/romberli/go-rsa/pkg/message/rsa"
 )
 
