@@ -81,7 +81,7 @@ func ValidateLog() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.StringInSlice(ValidLogLevels, logLevel)
+	valid = common.ElementInSlice(ValidLogLevels, logLevel)
 	if !valid {
 		merr = multierror.Append(merr, message.NewMessage(message.ErrNotValidLogLevel, logLevel))
 	}
@@ -90,7 +90,7 @@ func ValidateLog() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.StringInSlice(ValidLogFormats, logFormat)
+	valid = common.ElementInSlice(ValidLogFormats, logFormat)
 	if !valid {
 		merr = multierror.Append(merr, message.NewMessage(message.ErrNotValidLogFormat, logFormat))
 	}
@@ -109,7 +109,7 @@ func ValidateRSA() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.StringInSlice(ValidKeyTypes, rsaEncrypt)
+	valid = common.ElementInSlice(ValidKeyTypes, rsaEncrypt)
 	if !valid {
 		merr = multierror.Append(merr, message.NewMessage(msgRSA.ErrRSANotValidKeyType, rsaEncrypt))
 	}
@@ -118,7 +118,7 @@ func ValidateRSA() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.StringInSlice(ValidKeyTypes, rsaDecrypt)
+	valid = common.ElementInSlice(ValidKeyTypes, rsaDecrypt)
 	if err != nil {
 		merr = multierror.Append(merr, err)
 	}
