@@ -72,8 +72,6 @@ func ValidateConfig() (err error) {
 
 // ValidateLog validates if log section is valid.
 func ValidateLog() error {
-	var valid bool
-
 	merr := &multierror.Error{}
 
 	// validate log.level
@@ -81,8 +79,7 @@ func ValidateLog() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.ElementInSlice(ValidLogLevels, logLevel)
-	if !valid {
+	if !common.ElementInSlice(ValidLogLevels, logLevel) {
 		merr = multierror.Append(merr, message.NewMessage(message.ErrNotValidLogLevel, logLevel))
 	}
 	// validate log.format
@@ -90,8 +87,7 @@ func ValidateLog() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.ElementInSlice(ValidLogFormats, logFormat)
-	if !valid {
+	if !common.ElementInSlice(ValidLogFormats, logFormat) {
 		merr = multierror.Append(merr, message.NewMessage(message.ErrNotValidLogFormat, logFormat))
 	}
 
@@ -100,8 +96,6 @@ func ValidateLog() error {
 
 // ValidateRSA validates if rsa section is valid.
 func ValidateRSA() error {
-	var valid bool
-
 	merr := &multierror.Error{}
 
 	// validate rsa.encrypt
@@ -109,8 +103,7 @@ func ValidateRSA() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.ElementInSlice(ValidKeyTypes, rsaEncrypt)
-	if !valid {
+	if !common.ElementInSlice(ValidKeyTypes, rsaEncrypt) {
 		merr = multierror.Append(merr, message.NewMessage(msgRSA.ErrRSANotValidKeyType, rsaEncrypt))
 	}
 	// validate rsa.decrypt
@@ -118,11 +111,7 @@ func ValidateRSA() error {
 	if err != nil {
 		merr = multierror.Append(merr, errors.Trace(err))
 	}
-	valid = common.ElementInSlice(ValidKeyTypes, rsaDecrypt)
-	if err != nil {
-		merr = multierror.Append(merr, err)
-	}
-	if !valid {
+	if !common.ElementInSlice(ValidKeyTypes, rsaDecrypt) {
 		merr = multierror.Append(merr, message.NewMessage(msgRSA.ErrRSANotValidKeyType, rsaDecrypt))
 	}
 	// validate rsa.private
